@@ -1,0 +1,5 @@
+{
+  "name": "YouTube Movie Finder",
+  "description": "Search for movies and TV series on YouTube and export the results to HTML.",
+  "requestFramePermissions": []
+}
