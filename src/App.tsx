@@ -19,12 +19,15 @@ interface YouTubeResult {
       };
     };
     channelTitle: string;
+    duration?: string;
+    uploadedAt?: string;
   };
 }
 
 export default function App() {
   const [query, setQuery] = useState('');
   const [maxResults, setMaxResults] = useState(50);
+  const [sortBy, setSortBy] = useState('relevance');
   const [results, setResults] = useState<YouTubeResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +45,7 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query, maxResults }),
+        body: JSON.stringify({ query, maxResults, sortBy }),
       });
 
       const data = await response.json();
@@ -97,7 +100,7 @@ export default function App() {
                         ${item.snippet.title}
                     </a>
                 </h3>
-                <div class="channel">${item.snippet.channelTitle}</div>
+                <div class="channel">${item.snippet.channelTitle}${item.snippet.duration ? ` • ⏱️ ${item.snippet.duration}` : ''}${item.snippet.uploadedAt ? ` • 📅 ${item.snippet.uploadedAt}` : ''}</div>
                 <p class="description">${item.snippet.description}</p>
             </div>
         </div>
@@ -157,6 +160,16 @@ export default function App() {
             </div>
             <div className="sm:w-48">
               <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
+              >
+                <option value="relevance">En Alakalı</option>
+                <option value="date">En Yeni (Tarihe Göre)</option>
+              </select>
+            </div>
+            <div className="sm:w-48">
+              <select
                 value={maxResults}
                 onChange={(e) => setMaxResults(Number(e.target.value))}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
@@ -165,6 +178,7 @@ export default function App() {
                 <option value={100}>100 Results</option>
                 <option value={150}>150 Results</option>
                 <option value={200}>200 Results</option>
+                <option value={500}>500 Results</option>
               </select>
             </div>
             <button
@@ -223,10 +237,18 @@ export default function App() {
                         No thumbnail
                       </div>
                     )}
+                    {item.snippet.duration && (
+                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+                        {item.snippet.duration}
+                      </div>
+                    )}
                   </div>
                   <div className="p-4 flex-1 flex flex-col">
                     <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-red-600 transition-colors" dangerouslySetInnerHTML={{ __html: item.snippet.title }} />
-                    <p className="text-sm text-gray-500 mb-3">{item.snippet.channelTitle}</p>
+                    <p className="text-sm text-gray-500 mb-3">
+                      {item.snippet.channelTitle}
+                      {item.snippet.uploadedAt && ` • ${item.snippet.uploadedAt}`}
+                    </p>
                     <p className="text-sm text-gray-600 line-clamp-2 mt-auto" dangerouslySetInnerHTML={{ __html: item.snippet.description }} />
                   </div>
                 </a>
